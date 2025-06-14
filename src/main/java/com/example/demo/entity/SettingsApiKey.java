@@ -8,6 +8,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -30,14 +31,27 @@ public class SettingsApiKey {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "api_key", nullable = false, unique = true)
+    @Column(name = "api_key", nullable = false, unique = true, length = 255)
     private String key;
 
-    @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private LocalDate createdAt;
 
-    @UpdateTimestamp
     @Column(name = "last_used", nullable = false)
-    private LocalDateTime lastUsed;
+    private LocalDate lastUsed;
+
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null) {
+            createdAt = LocalDate.now();
+        }
+        if (lastUsed == null) {
+            lastUsed = LocalDate.now();
+        }
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        lastUsed = LocalDate.now();
+    }
 } 

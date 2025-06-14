@@ -1,12 +1,13 @@
 package com.example.demo.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Data
@@ -18,17 +19,19 @@ public class SettingsApiKeyDTO {
     @Schema(description = "Unique identifier of the API key", example = "123e4567-e89b-12d3-a456-426614174000")
     private UUID id;
 
+    @NotBlank(message = "Name is required")
+    @Size(min = 1, max = 100, message = "Name must be between 1 and 100 characters")
     @Schema(description = "Name of the API key", example = "Production API Key")
     private String name;
 
-    @Schema(description = "The API key value (UUID)", example = "123e4567-e89b-12d3-a456-426614174000")
+    @NotBlank(message = "API key is required")
+    @Size(min = 1, max = 255, message = "API key must be between 1 and 255 characters")
+    @Schema(description = "The API key value", example = "2312222222222222222222222y")
     private String key;
 
-    @JsonIgnore
-    @Schema(description = "Timestamp when the API key was created", accessMode = Schema.AccessMode.READ_ONLY)
-    private LocalDateTime createdAt;
+    @Schema(description = "Date when the API key was created")
+private LocalDate createdAt;
 
-    @JsonIgnore
-    @Schema(description = "Timestamp when the API key was last used", accessMode = Schema.AccessMode.READ_ONLY)
-    private LocalDateTime lastUsed;
+@Schema(description = "Date when the API key was last used")
+private LocalDate lastUsed;
 } 

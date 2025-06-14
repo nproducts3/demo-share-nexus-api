@@ -3,10 +3,12 @@ package com.example.demo.service;
 import com.example.demo.dto.SettingsApiKeyDTO;
 import com.example.demo.entity.SettingsApiKey;
 import com.example.demo.repository.SettingsApiKeyRepository;
+import jakarta.validation.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -26,32 +28,53 @@ public class SettingsApiKeyService {
     public SettingsApiKeyDTO getApiKeyById(UUID id) {
         return repository.findById(id)
                 .map(this::convertToDTO)
-                .orElseThrow(() -> new RuntimeException("API Key not found"));
+                .orElseThrow(() -> new ValidationException("API Key not found"));
     }
 
     @Transactional
     public SettingsApiKeyDTO createApiKey(SettingsApiKeyDTO dto) {
         if (repository.existsByKey(dto.getKey())) {
-            throw new RuntimeException("API Key already exists");
+            throw new ValidationException("API Key already exists");
         }
-        SettingsApiKey entity = convertToEntity(dto);
+
+        SettingsApiKey entity = new SettingsApiKey();
+        entity.setName(dto.getName());
+        entity.setKey(dto.getKey());
+        
+        // Set dates if provided, otherwise they will be set by @PrePersist
+        if (dto.getCreatedAt() != null) {
+            entity.setCreatedAt(dto.getCreatedAt());
+        }
+        if (dto.getLastUsed() != null) {
+            entity.setLastUsed(dto.getLastUsed());
+        }
+
         return convertToDTO(repository.save(entity));
     }
 
     @Transactional
     public SettingsApiKeyDTO updateApiKey(UUID id, SettingsApiKeyDTO dto) {
         SettingsApiKey existing = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("API Key not found"));
+                .orElseThrow(() -> new ValidationException("API Key not found"));
         
+        // Check if the new key already exists for a different record
+        if (!existing.getKey().equals(dto.getKey()) && repository.existsByKey(dto.getKey())) {
+            throw new ValidationException("API Key already exists");
+        }
+
+        // Update the fields
         existing.setName(dto.getName());
         existing.setKey(dto.getKey());
+        // Keep the original creation date
+        // lastUsed will be automatically updated by @PreUpdate
+        
         return convertToDTO(repository.save(existing));
     }
 
     @Transactional
     public void deleteApiKey(UUID id) {
         if (!repository.existsById(id)) {
-            throw new RuntimeException("API Key not found");
+            throw new ValidationException("API Key not found");
         }
         repository.deleteById(id);
     }
@@ -64,15 +87,5 @@ public class SettingsApiKeyService {
         dto.setCreatedAt(entity.getCreatedAt());
         dto.setLastUsed(entity.getLastUsed());
         return dto;
-    }
-
-    private SettingsApiKey convertToEntity(SettingsApiKeyDTO dto) {
-        SettingsApiKey entity = new SettingsApiKey();
-        entity.setId(dto.getId());
-        entity.setName(dto.getName());
-        entity.setKey(dto.getKey());
-        entity.setCreatedAt(dto.getCreatedAt());
-        entity.setLastUsed(dto.getLastUsed());
-        return entity;
     }
 } 
