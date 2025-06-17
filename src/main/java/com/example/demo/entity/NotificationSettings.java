@@ -4,9 +4,6 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.GenericGenerator;
-
-import java.util.UUID;
 
 @Entity
 @Table(name = "notification_settings")
@@ -16,13 +13,8 @@ import java.util.UUID;
 public class NotificationSettings {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(
-        name = "UUID",
-        strategy = "org.hibernate.id.UUIDGenerator"
-    )
-    @Column(name = "id", updatable = false, nullable = false)
-    private UUID id;
+    @Column(length = 36)
+    private String id;
 
     @Column(name = "email_notifications", nullable = false)
     private Boolean emailNotifications;

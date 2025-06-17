@@ -4,14 +4,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-import java.util.UUID;
-
 @Data
 @Schema(description = "Notification Settings Data Transfer Object")
 public class NotificationSettingsDTO {
     
     @Schema(description = "Unique identifier of the notification settings", example = "123e4567-e89b-12d3-a456-426614174000")
-    private UUID id;
+    private String id;
 
     @NotNull(message = "Email notifications setting is required")
     @Schema(description = "Whether email notifications are enabled", example = "true")

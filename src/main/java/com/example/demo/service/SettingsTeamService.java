@@ -21,13 +21,14 @@ public class SettingsTeamService {
 
     public SettingsTeamDTO createSettings(SettingsTeamDTO settingsDTO) {
         SettingsTeam settings = new SettingsTeam();
+        settings.setId(UUID.randomUUID().toString());
         updateSettingsFromDTO(settings, settingsDTO);
         SettingsTeam savedSettings = settingsTeamRepository.save(settings);
         return convertToDTO(savedSettings);
     }
 
     @Transactional(readOnly = true)
-    public SettingsTeamDTO getSettings(UUID id) {
+    public SettingsTeamDTO getSettings(String id) {
         SettingsTeam settings = settingsTeamRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Team settings not found with id: " + id));
         return convertToDTO(settings);
@@ -40,7 +41,7 @@ public class SettingsTeamService {
                 .collect(Collectors.toList());
     }
 
-    public SettingsTeamDTO updateSettings(UUID id, SettingsTeamDTO settingsDTO) {
+    public SettingsTeamDTO updateSettings(String id, SettingsTeamDTO settingsDTO) {
         SettingsTeam settings = settingsTeamRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Team settings not found with id: " + id));
 
@@ -49,7 +50,7 @@ public class SettingsTeamService {
         return convertToDTO(updatedSettings);
     }
 
-    public void deleteSettings(UUID id) {
+    public void deleteSettings(String id) {
         if (!settingsTeamRepository.existsById(id)) {
             throw new EntityNotFoundException("Team settings not found with id: " + id);
         }

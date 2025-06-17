@@ -25,13 +25,14 @@ public class SettingsProfileService {
         }
 
         SettingsProfile profile = new SettingsProfile();
+        profile.setId(UUID.randomUUID().toString());
         updateProfileFromDTO(profile, profileDTO);
         SettingsProfile savedProfile = settingsProfileRepository.save(profile);
         return convertToDTO(savedProfile);
     }
 
     @Transactional(readOnly = true)
-    public SettingsProfileDTO getProfile(UUID id) {
+    public SettingsProfileDTO getProfile(String id) {
         SettingsProfile profile = settingsProfileRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Profile not found with id: " + id));
         return convertToDTO(profile);
@@ -44,7 +45,7 @@ public class SettingsProfileService {
                 .collect(Collectors.toList());
     }
 
-    public SettingsProfileDTO updateProfile(UUID id, SettingsProfileDTO profileDTO) {
+    public SettingsProfileDTO updateProfile(String id, SettingsProfileDTO profileDTO) {
         SettingsProfile profile = settingsProfileRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Profile not found with id: " + id));
 
@@ -58,7 +59,7 @@ public class SettingsProfileService {
         return convertToDTO(updatedProfile);
     }
 
-    public void deleteProfile(UUID id) {
+    public void deleteProfile(String id) {
         if (!settingsProfileRepository.existsById(id)) {
             throw new EntityNotFoundException("Profile not found with id: " + id);
         }

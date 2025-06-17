@@ -5,14 +5,11 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-import java.util.UUID;
-
 @Data
 @Schema(description = "Advanced Settings Data Transfer Object")
 public class AdvancedSettingsDTO {
     
-    @Schema(description = "Unique identifier of the advanced settings", example = "123e4567-e89b-12d3-a456-426614174000")
-    private UUID id;
+    private String id;
 
     @NotNull(message = "Session timeout is required")
     @Min(value = 1, message = "Session timeout must be at least 1 minute")

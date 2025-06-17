@@ -4,13 +4,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Table(name = "settings_api_keys")
@@ -20,13 +15,8 @@ import java.util.UUID;
 public class SettingsApiKey {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(
-        name = "UUID",
-        strategy = "org.hibernate.id.UUIDGenerator"
-    )
-    @Column(name = "id", columnDefinition = "VARCHAR(36)", updatable = false, nullable = false)
-    private UUID id;
+    @Column(length = 36)
+    private String id;
 
     @Column(name = "name", nullable = false)
     private String name;

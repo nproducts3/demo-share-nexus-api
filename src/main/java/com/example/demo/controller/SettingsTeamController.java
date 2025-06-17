@@ -8,74 +8,69 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/settings-team")
+@RequestMapping("/api/settings/team")
 @CrossOrigin(origins = "*", maxAge = 3600)
-@RequiredArgsConstructor
-@Tag(name = "Team Settings", description = "Team Settings management APIs")
+@Tag(name = "Settings Team", description = "API for managing team settings")
 public class SettingsTeamController {
 
-    private final SettingsTeamService settingsTeamService;
+    private final SettingsTeamService service;
+
+    public SettingsTeamController(SettingsTeamService service) {
+        this.service = service;
+    }
 
     @PostMapping
-    @Operation(summary = "Create new team settings", description = "Creates new team settings with the provided configuration")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "Settings created successfully"),
-        @ApiResponse(responseCode = "400", description = "Invalid input")
-    })
-    public ResponseEntity<SettingsTeamDTO> createSettings(
-            @Valid @RequestBody SettingsTeamDTO settingsDTO) {
-        return new ResponseEntity<>(settingsTeamService.createSettings(settingsDTO), HttpStatus.CREATED);
+    @Operation(summary = "Create team settings", description = "Creates new team settings")
+    @ApiResponse(responseCode = "200", description = "Team settings created successfully")
+    public ResponseEntity<SettingsTeamDTO> createSettings(@Valid @RequestBody SettingsTeamDTO settingsDTO) {
+        return ResponseEntity.ok(service.createSettings(settingsDTO));
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Get team settings by ID", description = "Retrieves team settings by its UUID")
+    @Operation(summary = "Get team settings by ID", description = "Retrieves team settings by ID")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Settings found"),
-        @ApiResponse(responseCode = "404", description = "Settings not found")
+        @ApiResponse(responseCode = "200", description = "Team settings found"),
+        @ApiResponse(responseCode = "404", description = "Team settings not found")
     })
     public ResponseEntity<SettingsTeamDTO> getSettings(
-            @Parameter(description = "UUID of the settings to retrieve") @PathVariable UUID id) {
-        return ResponseEntity.ok(settingsTeamService.getSettings(id));
+            @Parameter(description = "ID of the settings to retrieve") @PathVariable String id) {
+        return ResponseEntity.ok(service.getSettings(id));
     }
 
     @GetMapping
     @Operation(summary = "Get all team settings", description = "Retrieves all team settings")
-    @ApiResponse(responseCode = "200", description = "List of all team settings")
+    @ApiResponse(responseCode = "200", description = "All team settings retrieved successfully")
     public ResponseEntity<List<SettingsTeamDTO>> getAllSettings() {
-        return ResponseEntity.ok(settingsTeamService.getAllSettings());
+        return ResponseEntity.ok(service.getAllSettings());
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Update team settings", description = "Updates existing team settings by its UUID")
+    @Operation(summary = "Update team settings", description = "Updates existing team settings")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Settings updated successfully"),
-        @ApiResponse(responseCode = "404", description = "Settings not found"),
-        @ApiResponse(responseCode = "400", description = "Invalid input")
+        @ApiResponse(responseCode = "200", description = "Team settings updated successfully"),
+        @ApiResponse(responseCode = "404", description = "Team settings not found")
     })
     public ResponseEntity<SettingsTeamDTO> updateSettings(
-            @Parameter(description = "UUID of the settings to update") @PathVariable UUID id,
+            @Parameter(description = "ID of the settings to update") @PathVariable String id,
             @Valid @RequestBody SettingsTeamDTO settingsDTO) {
-        return ResponseEntity.ok(settingsTeamService.updateSettings(id, settingsDTO));
+        return ResponseEntity.ok(service.updateSettings(id, settingsDTO));
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Delete team settings", description = "Deletes team settings by its UUID")
+    @Operation(summary = "Delete team settings", description = "Deletes team settings")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "204", description = "Settings deleted successfully"),
-        @ApiResponse(responseCode = "404", description = "Settings not found")
+        @ApiResponse(responseCode = "200", description = "Team settings deleted successfully"),
+        @ApiResponse(responseCode = "404", description = "Team settings not found")
     })
     public ResponseEntity<Void> deleteSettings(
-            @Parameter(description = "UUID of the settings to delete") @PathVariable UUID id) {
-        settingsTeamService.deleteSettings(id);
-        return ResponseEntity.noContent().build();
+            @Parameter(description = "ID of the settings to delete") @PathVariable String id) {
+        service.deleteSettings(id);
+        return ResponseEntity.ok().build();
     }
 } 

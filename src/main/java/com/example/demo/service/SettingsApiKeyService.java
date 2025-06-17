@@ -25,7 +25,7 @@ public class SettingsApiKeyService {
                 .collect(Collectors.toList());
     }
 
-    public SettingsApiKeyDTO getApiKeyById(UUID id) {
+    public SettingsApiKeyDTO getApiKeyById(String id) {
         return repository.findById(id)
                 .map(this::convertToDTO)
                 .orElseThrow(() -> new ValidationException("API Key not found"));
@@ -38,6 +38,7 @@ public class SettingsApiKeyService {
         }
 
         SettingsApiKey entity = new SettingsApiKey();
+        entity.setId(UUID.randomUUID().toString());
         entity.setName(dto.getName());
         entity.setKey(dto.getKey());
         
@@ -53,7 +54,7 @@ public class SettingsApiKeyService {
     }
 
     @Transactional
-    public SettingsApiKeyDTO updateApiKey(UUID id, SettingsApiKeyDTO dto) {
+    public SettingsApiKeyDTO updateApiKey(String id, SettingsApiKeyDTO dto) {
         SettingsApiKey existing = repository.findById(id)
                 .orElseThrow(() -> new ValidationException("API Key not found"));
         
@@ -72,7 +73,7 @@ public class SettingsApiKeyService {
     }
 
     @Transactional
-    public void deleteApiKey(UUID id) {
+    public void deleteApiKey(String id) {
         if (!repository.existsById(id)) {
             throw new ValidationException("API Key not found");
         }

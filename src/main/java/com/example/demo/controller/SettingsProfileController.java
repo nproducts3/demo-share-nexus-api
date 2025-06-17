@@ -8,74 +8,69 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/settings-profiles")
+@RequestMapping("/api/settings/profiles")
 @CrossOrigin(origins = "*", maxAge = 3600)
-@RequiredArgsConstructor
-@Tag(name = "Settings Profile", description = "Settings Profile management APIs")
+@Tag(name = "Settings Profile", description = "API for managing profile settings")
 public class SettingsProfileController {
 
-    private final SettingsProfileService settingsProfileService;
+    private final SettingsProfileService service;
+
+    public SettingsProfileController(SettingsProfileService service) {
+        this.service = service;
+    }
 
     @PostMapping
-    @Operation(summary = "Create a new settings profile", description = "Creates a new settings profile with the provided details")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "Profile created successfully"),
-        @ApiResponse(responseCode = "400", description = "Invalid input or email already exists")
-    })
-    public ResponseEntity<SettingsProfileDTO> createProfile(
-            @Valid @RequestBody SettingsProfileDTO profileDTO) {
-        return new ResponseEntity<>(settingsProfileService.createProfile(profileDTO), HttpStatus.CREATED);
+    @Operation(summary = "Create profile settings", description = "Creates new profile settings")
+    @ApiResponse(responseCode = "200", description = "Profile settings created successfully")
+    public ResponseEntity<SettingsProfileDTO> createProfile(@Valid @RequestBody SettingsProfileDTO profileDTO) {
+        return ResponseEntity.ok(service.createProfile(profileDTO));
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Get a settings profile by ID", description = "Retrieves a settings profile by its UUID")
+    @Operation(summary = "Get profile settings by ID", description = "Retrieves profile settings by ID")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Profile found"),
-        @ApiResponse(responseCode = "404", description = "Profile not found")
+        @ApiResponse(responseCode = "200", description = "Profile settings found"),
+        @ApiResponse(responseCode = "404", description = "Profile settings not found")
     })
     public ResponseEntity<SettingsProfileDTO> getProfile(
-            @Parameter(description = "UUID of the profile to retrieve") @PathVariable UUID id) {
-        return ResponseEntity.ok(settingsProfileService.getProfile(id));
+            @Parameter(description = "ID of the profile to retrieve") @PathVariable String id) {
+        return ResponseEntity.ok(service.getProfile(id));
     }
 
     @GetMapping
-    @Operation(summary = "Get all settings profiles", description = "Retrieves all settings profiles")
-    @ApiResponse(responseCode = "200", description = "List of all profiles")
+    @Operation(summary = "Get all profile settings", description = "Retrieves all profile settings")
+    @ApiResponse(responseCode = "200", description = "All profile settings retrieved successfully")
     public ResponseEntity<List<SettingsProfileDTO>> getAllProfiles() {
-        return ResponseEntity.ok(settingsProfileService.getAllProfiles());
+        return ResponseEntity.ok(service.getAllProfiles());
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Update a settings profile", description = "Updates an existing settings profile by its UUID")
+    @Operation(summary = "Update profile settings", description = "Updates existing profile settings")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Profile updated successfully"),
-        @ApiResponse(responseCode = "404", description = "Profile not found"),
-        @ApiResponse(responseCode = "400", description = "Invalid input or email already exists")
+        @ApiResponse(responseCode = "200", description = "Profile settings updated successfully"),
+        @ApiResponse(responseCode = "404", description = "Profile settings not found")
     })
     public ResponseEntity<SettingsProfileDTO> updateProfile(
-            @Parameter(description = "UUID of the profile to update") @PathVariable UUID id,
+            @Parameter(description = "ID of the profile to update") @PathVariable String id,
             @Valid @RequestBody SettingsProfileDTO profileDTO) {
-        return ResponseEntity.ok(settingsProfileService.updateProfile(id, profileDTO));
+        return ResponseEntity.ok(service.updateProfile(id, profileDTO));
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Delete a settings profile", description = "Deletes a settings profile by its UUID")
+    @Operation(summary = "Delete profile settings", description = "Deletes profile settings")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "204", description = "Profile deleted successfully"),
-        @ApiResponse(responseCode = "404", description = "Profile not found")
+        @ApiResponse(responseCode = "200", description = "Profile settings deleted successfully"),
+        @ApiResponse(responseCode = "404", description = "Profile settings not found")
     })
     public ResponseEntity<Void> deleteProfile(
-            @Parameter(description = "UUID of the profile to delete") @PathVariable UUID id) {
-        settingsProfileService.deleteProfile(id);
-        return ResponseEntity.noContent().build();
+            @Parameter(description = "ID of the profile to delete") @PathVariable String id) {
+        service.deleteProfile(id);
+        return ResponseEntity.ok().build();
     }
 } 

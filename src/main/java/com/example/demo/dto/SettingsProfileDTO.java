@@ -5,14 +5,12 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
-import java.util.UUID;
-
 @Data
 @Schema(description = "Settings Profile Data Transfer Object")
 public class SettingsProfileDTO {
     
     @Schema(description = "Unique identifier of the settings profile", example = "123e4567-e89b-12d3-a456-426614174000")
-    private UUID id;
+    private String id;
 
     @NotBlank(message = "Name is required")
     @Schema(description = "Name of the profile owner", example = "John Doe")

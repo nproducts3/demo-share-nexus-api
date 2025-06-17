@@ -8,7 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -17,7 +16,7 @@ import java.util.UUID;
 public class SettingsApiKeyDTO {
 
     @Schema(description = "Unique identifier of the API key", example = "123e4567-e89b-12d3-a456-426614174000")
-    private UUID id;
+    private String id;
 
     @NotBlank(message = "Name is required")
     @Size(min = 1, max = 100, message = "Name must be between 1 and 100 characters")
@@ -30,8 +29,8 @@ public class SettingsApiKeyDTO {
     private String key;
 
     @Schema(description = "Date when the API key was created")
-private LocalDate createdAt;
+    private LocalDate createdAt;
 
-@Schema(description = "Date when the API key was last used")
-private LocalDate lastUsed;
+    @Schema(description = "Date when the API key was last used")
+    private LocalDate lastUsed;
 } 

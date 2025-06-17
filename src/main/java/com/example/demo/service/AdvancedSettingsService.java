@@ -3,8 +3,8 @@ package com.example.demo.service;
 import com.example.demo.dto.AdvancedSettingsDTO;
 import com.example.demo.entity.AdvancedSettings;
 import com.example.demo.repository.AdvancedSettingsRepository;
-import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
+import jakarta.validation.ValidationException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,65 +13,66 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
-@Transactional
 public class AdvancedSettingsService {
 
-    private final AdvancedSettingsRepository advancedSettingsRepository;
+    @Autowired
+    private AdvancedSettingsRepository repository;
 
-    public AdvancedSettingsDTO createSettings(AdvancedSettingsDTO settingsDTO) {
-        AdvancedSettings settings = new AdvancedSettings();
-        updateSettingsFromDTO(settings, settingsDTO);
-        AdvancedSettings savedSettings = advancedSettingsRepository.save(settings);
-        return convertToDTO(savedSettings);
-    }
-
-    @Transactional(readOnly = true)
-    public AdvancedSettingsDTO getSettings(UUID id) {
-        AdvancedSettings settings = advancedSettingsRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Advanced settings not found with id: " + id));
-        return convertToDTO(settings);
-    }
-
-    @Transactional(readOnly = true)
     public List<AdvancedSettingsDTO> getAllSettings() {
-        return advancedSettingsRepository.findAll().stream()
+        return repository.findAll().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
-    public AdvancedSettingsDTO updateSettings(UUID id, AdvancedSettingsDTO settingsDTO) {
-        AdvancedSettings settings = advancedSettingsRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Advanced settings not found with id: " + id));
-
-        updateSettingsFromDTO(settings, settingsDTO);
-        AdvancedSettings updatedSettings = advancedSettingsRepository.save(settings);
-        return convertToDTO(updatedSettings);
+    public AdvancedSettingsDTO getSettingsById(String id) {
+        return repository.findById(id)
+                .map(this::convertToDTO)
+                .orElseThrow(() -> new ValidationException("Advanced Settings not found"));
     }
 
-    public void deleteSettings(UUID id) {
-        if (!advancedSettingsRepository.existsById(id)) {
-            throw new EntityNotFoundException("Advanced settings not found with id: " + id);
+    @Transactional
+    public AdvancedSettingsDTO createSettings(AdvancedSettingsDTO dto) {
+        AdvancedSettings entity = new AdvancedSettings();
+        entity.setId(UUID.randomUUID().toString());
+        entity.setSessionTimeout(dto.getSessionTimeout());
+        entity.setMaxFileSize(dto.getMaxFileSize());
+        entity.setEnableDebugMode(dto.getEnableDebugMode());
+        entity.setAutoBackup(dto.getAutoBackup());
+        entity.setMaintenanceMode(dto.getMaintenanceMode());
+
+        return convertToDTO(repository.save(entity));
+    }
+
+    @Transactional
+    public AdvancedSettingsDTO updateSettings(String id, AdvancedSettingsDTO dto) {
+        AdvancedSettings existing = repository.findById(id)
+                .orElseThrow(() -> new ValidationException("Advanced Settings not found"));
+
+        existing.setSessionTimeout(dto.getSessionTimeout());
+        existing.setMaxFileSize(dto.getMaxFileSize());
+        existing.setEnableDebugMode(dto.getEnableDebugMode());
+        existing.setAutoBackup(dto.getAutoBackup());
+        existing.setMaintenanceMode(dto.getMaintenanceMode());
+
+        return convertToDTO(repository.save(existing));
+    }
+
+    @Transactional
+    public void deleteSettings(String id) {
+        if (!repository.existsById(id)) {
+            throw new ValidationException("Advanced Settings not found");
         }
-        advancedSettingsRepository.deleteById(id);
+        repository.deleteById(id);
     }
 
-    private AdvancedSettingsDTO convertToDTO(AdvancedSettings settings) {
+    private AdvancedSettingsDTO convertToDTO(AdvancedSettings entity) {
         AdvancedSettingsDTO dto = new AdvancedSettingsDTO();
-        dto.setId(settings.getId());
-        dto.setSessionTimeout(settings.getSessionTimeout());
-        dto.setMaxFileSize(settings.getMaxFileSize());
-        dto.setEnableDebugMode(settings.getEnableDebugMode());
-        dto.setAutoBackup(settings.getAutoBackup());
-        dto.setMaintenanceMode(settings.getMaintenanceMode());
+        dto.setId(entity.getId());
+        dto.setSessionTimeout(entity.getSessionTimeout());
+        dto.setMaxFileSize(entity.getMaxFileSize());
+        dto.setEnableDebugMode(entity.getEnableDebugMode());
+        dto.setAutoBackup(entity.getAutoBackup());
+        dto.setMaintenanceMode(entity.getMaintenanceMode());
         return dto;
-    }
-
-    private void updateSettingsFromDTO(AdvancedSettings settings, AdvancedSettingsDTO dto) {
-        settings.setSessionTimeout(dto.getSessionTimeout());
-        settings.setMaxFileSize(dto.getMaxFileSize());
-        settings.setEnableDebugMode(dto.getEnableDebugMode());
-        settings.setAutoBackup(dto.getAutoBackup());
-        settings.setMaintenanceMode(dto.getMaintenanceMode());
     }
 } 

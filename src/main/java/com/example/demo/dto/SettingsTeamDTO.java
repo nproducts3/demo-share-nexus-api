@@ -5,14 +5,12 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-import java.util.UUID;
-
 @Data
 @Schema(description = "Team Settings Data Transfer Object")
 public class SettingsTeamDTO {
     
     @Schema(description = "Unique identifier of the team settings", example = "123e4567-e89b-12d3-a456-426614174000")
-    private UUID id;
+    private String id;
 
     @NotNull(message = "Maximum sessions per day is required")
     @Min(value = 1, message = "Maximum sessions per day must be at least 1")

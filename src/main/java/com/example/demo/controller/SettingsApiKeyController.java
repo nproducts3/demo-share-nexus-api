@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/settings/api-keys")
@@ -37,7 +36,7 @@ public class SettingsApiKeyController {
         @ApiResponse(responseCode = "404", description = "API key not found")
     })
     public ResponseEntity<SettingsApiKeyDTO> getApiKeyById(
-            @Parameter(description = "ID of the API key to retrieve") @PathVariable UUID id) {
+            @Parameter(description = "ID of the API key to retrieve") @PathVariable String id) {
         return ResponseEntity.ok(service.getApiKeyById(id));
     }
 
@@ -60,7 +59,7 @@ public class SettingsApiKeyController {
         @ApiResponse(responseCode = "400", description = "Invalid input")
     })
     public ResponseEntity<SettingsApiKeyDTO> updateApiKey(
-            @Parameter(description = "ID of the API key to update") @PathVariable UUID id,
+            @Parameter(description = "ID of the API key to update") @PathVariable String id,
             @Parameter(description = "Updated API key details") @RequestBody SettingsApiKeyDTO apiKeyDTO) {
         return ResponseEntity.ok(service.updateApiKey(id, apiKeyDTO));
     }
@@ -72,7 +71,7 @@ public class SettingsApiKeyController {
         @ApiResponse(responseCode = "404", description = "API key not found")
     })
     public ResponseEntity<Void> deleteApiKey(
-            @Parameter(description = "ID of the API key to delete") @PathVariable UUID id) {
+            @Parameter(description = "ID of the API key to delete") @PathVariable String id) {
         service.deleteApiKey(id);
         return ResponseEntity.ok().build();
     }

@@ -21,13 +21,14 @@ public class NotificationSettingsService {
 
     public NotificationSettingsDTO createSettings(NotificationSettingsDTO settingsDTO) {
         NotificationSettings settings = new NotificationSettings();
+        settings.setId(UUID.randomUUID().toString());
         updateSettingsFromDTO(settings, settingsDTO);
         NotificationSettings savedSettings = notificationSettingsRepository.save(settings);
         return convertToDTO(savedSettings);
     }
 
     @Transactional(readOnly = true)
-    public NotificationSettingsDTO getSettings(UUID id) {
+    public NotificationSettingsDTO getSettings(String id) {
         NotificationSettings settings = notificationSettingsRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Notification settings not found with id: " + id));
         return convertToDTO(settings);
@@ -40,7 +41,7 @@ public class NotificationSettingsService {
                 .collect(Collectors.toList());
     }
 
-    public NotificationSettingsDTO updateSettings(UUID id, NotificationSettingsDTO settingsDTO) {
+    public NotificationSettingsDTO updateSettings(String id, NotificationSettingsDTO settingsDTO) {
         NotificationSettings settings = notificationSettingsRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Notification settings not found with id: " + id));
 
@@ -49,7 +50,7 @@ public class NotificationSettingsService {
         return convertToDTO(updatedSettings);
     }
 
-    public void deleteSettings(UUID id) {
+    public void deleteSettings(String id) {
         if (!notificationSettingsRepository.existsById(id)) {
             throw new EntityNotFoundException("Notification settings not found with id: " + id);
         }
