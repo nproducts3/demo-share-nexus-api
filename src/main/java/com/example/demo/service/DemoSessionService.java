@@ -21,10 +21,12 @@ import java.util.UUID;
 public class DemoSessionService {
     private final DemoSessionRepository repository;
     private final UserManagementRepository userManagementRepository;
+    private final EmailService emailService;
 
-    public DemoSessionService(DemoSessionRepository repository, UserManagementRepository userManagementRepository) {
+    public DemoSessionService(DemoSessionRepository repository, UserManagementRepository userManagementRepository, EmailService emailService) {
         this.repository = repository;
         this.userManagementRepository = userManagementRepository;
+        this.emailService = emailService;
     }
 
     /**
@@ -80,7 +82,27 @@ public class DemoSessionService {
         session.setRole(DemoSession.ParticipantRole.valueOf(dto.getRole().name()));
 
         // Save the demo session to the repository
-        return repository.save(session);
+        DemoSession savedSession = repository.save(session);
+
+        // Send email notifications
+        try {
+            // Send confirmation email to the creator
+            emailService.sendSessionCreationConfirmation(savedSession, createdByUser);
+            
+            // Send notification emails to all participants (excluding the creator)
+            List<UserManagement> participants = users.stream()
+                    .filter(user -> !user.getId().equals(createdByUser.getId()))
+                    .toList();
+            
+            if (!participants.isEmpty()) {
+                emailService.sendSessionCreationNotification(savedSession, createdByUser, participants);
+            }
+        } catch (Exception e) {
+            // Log the error but don't fail the session creation
+            System.err.println("Failed to send email notifications: " + e.getMessage());
+        }
+
+        return savedSession;
     }
 
     /**

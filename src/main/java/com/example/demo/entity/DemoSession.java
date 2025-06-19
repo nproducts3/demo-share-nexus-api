@@ -37,7 +37,7 @@ public class DemoSession {
     private String description;
 
     @ManyToOne
-    @JoinColumn(name = "created_by", nullable = false, length = 100)
+    @JoinColumn(name = "created_by", nullable = false)
     @JsonIgnoreProperties("demoSessions")
     private UserManagement createdBy;
 

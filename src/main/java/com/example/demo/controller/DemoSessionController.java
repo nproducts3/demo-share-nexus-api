@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.DemoSession;
 import com.example.demo.dto.DemoSessionDTO;
+import com.example.demo.dto.DemoSessionResponseDTO;
 import com.example.demo.dto.PaginatedResponse;
 import com.example.demo.service.DemoSessionService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,7 +37,7 @@ public class DemoSessionController {
         description = "Creates a new demo session with the provided details"
     )
     @ApiResponse(responseCode = "201", description = "Session created successfully")
-    public ResponseEntity<DemoSession> createSession(@Valid @RequestBody DemoSessionDTO dto) {
+    public ResponseEntity<DemoSessionResponseDTO> createSession(@Valid @RequestBody DemoSessionDTO dto) {
         // Log incoming data for debugging
         logger.info("Received request to create demo session: " + dto);
 
@@ -44,10 +45,10 @@ public class DemoSessionController {
             // Create the session
             DemoSession createdSession = service.createSession(dto);
             
-            // Clear the users list to avoid circular reference in response
-            createdSession.setUsers(null);
+            // Convert to response DTO
+            DemoSessionResponseDTO responseDTO = DemoSessionResponseDTO.fromEntity(createdSession);
             
-            return new ResponseEntity<>(createdSession, HttpStatus.CREATED);
+            return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
         } catch (Exception e) {
             // Log the error with stack trace
             logger.error("Error creating session: ", e);
@@ -75,10 +76,12 @@ public class DemoSessionController {
     )
     @ApiResponse(responseCode = "200", description = "Session found")
     @ApiResponse(responseCode = "404", description = "Session not found")
-    public ResponseEntity<DemoSession> getSession(
+    public ResponseEntity<DemoSessionResponseDTO> getSession(
             @Parameter(description = "Session ID", required = true)
             @PathVariable String id) {
-        return ResponseEntity.ok(service.getSession(id));
+        DemoSession session = service.getSession(id);
+        DemoSessionResponseDTO responseDTO = DemoSessionResponseDTO.fromEntity(session);
+        return ResponseEntity.ok(responseDTO);
     }
 
     @GetMapping
@@ -87,13 +90,23 @@ public class DemoSessionController {
         description = "Retrieves all demo sessions"
     )
     @ApiResponse(responseCode = "200", description = "List of all sessions")
-    public ResponseEntity<PaginatedResponse<DemoSession>> getAllSessions(
+    public ResponseEntity<PaginatedResponse<DemoSessionResponseDTO>> getAllSessions(
             @Parameter(description = "Page number (1-based)")
             @RequestParam(defaultValue = "1") int page,
             @Parameter(description = "Items per page")
             @RequestParam(defaultValue = "10") int limit) {
         Pageable pageable = PageRequest.of(page - 1, limit, Sort.by("date").descending());
-        return ResponseEntity.ok(PaginatedResponse.from(service.getAllSessions(pageable)));
+        var pageResult = service.getAllSessions(pageable);
+        
+        // Convert entities to response DTOs
+        var responseDTOs = pageResult.getContent().stream()
+                .map(DemoSessionResponseDTO::fromEntity)
+                .toList();
+        
+        PaginatedResponse<DemoSessionResponseDTO> response = PaginatedResponse.from(pageResult);
+        response.setContent(responseDTOs);
+        
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
