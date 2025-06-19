@@ -9,6 +9,7 @@ import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 @Data
 public class DemoSessionDTO {
@@ -65,7 +66,18 @@ public class DemoSessionDTO {
 
     private CurrentStatus currentStatus;
 
+    private List<String> userIds;  // List of user IDs for the foreign key
+
+
     @Min(value = 1, message = "Rating must be at least 1")
     @Max(value = 5, message = "Rating must not exceed 5")
     private Integer rating;
+
+    @NotNull(message = "Role is required")
+    private ParticipantRole role;  // Role in the session
+
+    // Enum for role
+    public enum ParticipantRole {
+        HOST, CO_HOST, ATTENDEE
+    }
 }

@@ -4,8 +4,10 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "user_management")
@@ -57,6 +59,10 @@ public class UserManagement {
 
     private String avatar;
 
+    @ManyToMany(mappedBy = "users")  // Inverse side of the many-to-many relationship
+    @JsonIgnore
+    private List<DemoSession> demoSessions;  // List of sessions the user is part of
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
@@ -85,4 +91,4 @@ public class UserManagement {
     public enum SkillLevel {
         Beginner, Intermediate, Advanced
     }
-} 
+}

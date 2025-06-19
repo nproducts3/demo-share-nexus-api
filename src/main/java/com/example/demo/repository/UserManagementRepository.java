@@ -18,4 +18,5 @@ public interface UserManagementRepository extends JpaRepository<UserManagement, 
     Page<UserManagement> findByStatus(UserManagement.UserStatus status, Pageable pageable);
     Page<UserManagement> findBySkillLevel(UserManagement.SkillLevel skillLevel, Pageable pageable);
     boolean existsByEmail(String email);
+
 } 

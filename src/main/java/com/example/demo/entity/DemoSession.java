@@ -5,9 +5,11 @@ import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "demo_sessions")
@@ -92,6 +94,19 @@ public class DemoSession {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @ManyToMany
+    @JoinTable(
+        name = "demo_session_users", // Join table name
+        joinColumns = @JoinColumn(name = "demo_session_id"), // Foreign key for DemoSession
+        inverseJoinColumns = @JoinColumn(name = "user_id") // Foreign key for UserManagement
+    )
+    @JsonIgnoreProperties("demoSessions")
+    private List<UserManagement> users; // Multiple users can be part of each session
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ParticipantRole role;  // Role in the session
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -128,5 +143,10 @@ public class DemoSession {
 
     public enum CurrentStatus {
         Planning, In_Progress, Testing, Completed, On_Hold
+    }
+
+    // Enum for role
+    public enum ParticipantRole {
+        HOST, CO_HOST, ATTENDEE
     }
 }

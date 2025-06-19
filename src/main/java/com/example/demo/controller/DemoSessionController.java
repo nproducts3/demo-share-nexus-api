@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Demo Sessions", description = "Demo Sessions management APIs")
 public class DemoSessionController {
     private final DemoSessionService service;
+    private static final Logger logger = LoggerFactory.getLogger(DemoSessionController.class);
 
     public DemoSessionController(DemoSessionService service) {
         this.service = service;
@@ -34,7 +37,22 @@ public class DemoSessionController {
     )
     @ApiResponse(responseCode = "201", description = "Session created successfully")
     public ResponseEntity<DemoSession> createSession(@Valid @RequestBody DemoSessionDTO dto) {
-        return new ResponseEntity<>(service.createSession(dto), HttpStatus.CREATED);
+        // Log incoming data for debugging
+        logger.info("Received request to create demo session: " + dto);
+
+        try {
+            // Create the session
+            DemoSession createdSession = service.createSession(dto);
+            
+            // Clear the users list to avoid circular reference in response
+            createdSession.setUsers(null);
+            
+            return new ResponseEntity<>(createdSession, HttpStatus.CREATED);
+        } catch (Exception e) {
+            // Log the error with stack trace
+            logger.error("Error creating session: ", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PutMapping("/{id}")
@@ -139,4 +157,4 @@ public class DemoSessionController {
         Pageable pageable = PageRequest.of(page - 1, limit, Sort.by("date").descending());
         return ResponseEntity.ok(PaginatedResponse.from(service.getSessionsByDifficulty(difficulty, pageable)));
     }
-} 
+}
