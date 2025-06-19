@@ -36,8 +36,10 @@ public class DemoSession {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "created_by", nullable = false, length = 100)
-    private String createdBy;
+    @ManyToOne
+    @JoinColumn(name = "created_by", nullable = false, length = 100)
+    @JsonIgnoreProperties("demoSessions")
+    private UserManagement createdBy;
 
     @Column(nullable = false)
     private Integer attendees = 0;
